@@ -15,6 +15,19 @@ interface FormFieldRendererProps {
 const inputClass =
   'w-full min-h-[44px] px-3 py-2.5 text-sm text-slate-950 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:text-slate-400 disabled:bg-slate-50 dark:text-slate-100 dark:bg-slate-900 dark:border-slate-700 dark:disabled:bg-slate-900';
 
+function formatSalaryHint(value: unknown): string {
+  if (value === '' || value == null) return '';
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+
+  const compact = (num: number) => Number.isInteger(num) ? String(num) : num.toFixed(1).replace(/\.0$/, '');
+
+  if (amount >= 10000000) return `Approx. ₹${compact(amount / 10000000)} crore`;
+  if (amount >= 100000) return `Approx. ₹${compact(amount / 100000)} lakh`;
+  if (amount >= 1000) return `Approx. ₹${compact(amount / 1000)}k`;
+  return `Approx. ₹${amount.toLocaleString('en-IN')}`;
+}
+
 export default function FormFieldRenderer({
   field,
   value,
@@ -29,6 +42,7 @@ export default function FormFieldRenderer({
   const displayLabel = translatedLabel ?? field.label;
   const displayHelpText = translatedHelpText ?? field.help_text;
   const displayOptions = translatedOptions ?? field.options;
+  const salaryHint = field.field_key === 'expected_salary' ? formatSalaryHint(value) : '';
 
   return (
     <div className="space-y-1">
@@ -64,15 +78,20 @@ export default function FormFieldRenderer({
       )}
 
       {field.field_type === 'number' && (
-        <input
-          type="number"
-          className={inputClass}
-          placeholder={field.placeholder || displayLabel}
-          value={strVal}
-          min={field.min_value ?? undefined}
-          max={field.max_value ?? undefined}
-          onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
-        />
+        <>
+          <input
+            type="number"
+            className={inputClass}
+            placeholder={field.placeholder || displayLabel}
+            value={strVal}
+            min={field.min_value ?? undefined}
+            max={field.max_value ?? undefined}
+            onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}
+          />
+          {salaryHint && (
+            <p className="text-xs font-medium text-blue-700 dark:text-blue-300">{salaryHint}</p>
+          )}
+        </>
       )}
 
       {field.field_type === 'date' && (
