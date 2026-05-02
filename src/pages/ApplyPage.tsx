@@ -9,7 +9,7 @@ import { getCampaign } from '../api/campaign';
 import { createSubmission } from '../api/submissions';
 import type { Campaign, FormField } from '../types/campaign';
 import type { AnswerPayload, SubmissionError } from '../types/submission';
-import { staticFormSchema, type StaticFormValues, validateFile } from '../utils/validation';
+import { createStaticFormSchema, type StaticFormValues, validateFile, validateBusinessRules } from '../utils/validation';
 import { t, type LangCode } from '../utils/i18n';
 import FormFieldRenderer from '../components/FormFieldRenderer';
 import FileUploadField from '../components/FileUploadField';
@@ -71,7 +71,7 @@ export default function ApplyPage() {
     watch,
     formState: { errors },
   } = useForm<StaticFormValues>({
-    resolver: zodResolver(staticFormSchema),
+    resolver: zodResolver(createStaticFormSchema(selectedLang)),
     defaultValues: {
       mobile_number: '',
       first_name: '',
@@ -175,6 +175,14 @@ export default function ApplyPage() {
       ...(campaign.common_fields ?? []),
       ...activeRoleFields,
     ];
+
+    // Business-rule validation (age range, experience vs age, salary cap, joining date)
+    const businessErrors = validateBusinessRules(allFields, fieldValues, selectedLang);
+    if (Object.keys(businessErrors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...businessErrors }));
+      return;
+    }
+
     const answers: AnswerPayload[] = allFields
       .filter((f) => {
         const val = fieldValues[f.id];

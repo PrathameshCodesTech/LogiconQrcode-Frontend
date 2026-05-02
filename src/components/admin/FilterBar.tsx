@@ -28,7 +28,7 @@ interface Props {
 }
 
 const inputClass =
-  'h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-900 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100 dark:focus:border-blue-400';
+  'h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-gray-900 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:bg-slate-800 dark:[color-scheme:dark]';
 
 export default function FilterBar({ filters, onChange }: Props) {
   const set = (key: keyof SubmissionFilters, value: string) => {
