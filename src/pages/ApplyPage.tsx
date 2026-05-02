@@ -168,9 +168,6 @@ export default function ApplyPage() {
       return;
     }
 
-    setSubmitError(null);
-    setSubmitting(true);
-
     const allFields = [
       ...(campaign.common_fields ?? []),
       ...activeRoleFields,
@@ -182,6 +179,14 @@ export default function ApplyPage() {
       setFieldErrors((prev) => ({ ...prev, ...businessErrors }));
       return;
     }
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      allFields.forEach((field) => delete next[field.id]);
+      return next;
+    });
+
+    setSubmitError(null);
+    setSubmitting(true);
 
     const answers: AnswerPayload[] = allFields
       .filter((f) => {
